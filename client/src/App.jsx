@@ -1,20 +1,19 @@
 import { EthProvider } from "./contexts/EthContext";
-import Intro from "./components/Intro/";
-import Setup from "./components/Setup";
-import Demo from "./components/Demo";
 import Footer from "./components/Footer";
+import Register from "./components/auth/register";
+import Login from "./components/auth/login";
+import AddProperty from "./components/property/addProperty";
+import PropertyList from "./components/property/propertyList";
 
 function App() {
   return (
     <EthProvider>
       <div id="App">
-        <div className="container">
-          <Intro />
-          <hr />
-          <Setup />
-          <hr />
-          <Demo />
-          <hr />
+        <div className="container mx-auto">
+          <Register/>
+          <Login/>
+          <AddProperty/>
+          <PropertyList/>
           <Footer />
         </div>
       </div>

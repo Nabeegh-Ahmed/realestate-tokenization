@@ -3,14 +3,16 @@ import Web3 from "web3";
 import EthContext from "./EthContext";
 import { reducer, actions, initialState } from "./state";
 
+import SimpleStorageArtifact from "../../contracts/SimpleStorage.json"
+import AuthKeeperArtifact from "../../contracts/AuthKeeper.json"
+import PropertyKeeperArtifact from "../../contracts/PropertyKeeper.json"
+
 function EthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const init = useCallback(
-    async artifact => {
+    async (artifact, web3) => {
       if (artifact) {
-        const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
-        const accounts = await web3.eth.requestAccounts();
         const networkID = await web3.eth.net.getId();
         const { abi } = artifact;
         let address, contract;
@@ -20,18 +22,38 @@ function EthProvider({ children }) {
         } catch (err) {
           console.error(err);
         }
-        dispatch({
-          type: actions.init,
-          data: { artifact, web3, accounts, networkID, contract }
-        });
+        return contract
       }
     }, []);
 
   useEffect(() => {
     const tryInit = async () => {
       try {
-        const artifact = require("../../contracts/SimpleStorage.json");
-        init(artifact);
+        const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
+        const accounts = await web3.eth.requestAccounts();
+        const networkID = await web3.eth.net.getId();
+        
+        let contracts = new Map(), artifacts = new Map()
+
+        const [SimpleStorageContract, AuthKeeperContract, PropertyKeeperContract] = await Promise.all([
+          init(SimpleStorageArtifact, web3),
+          init(AuthKeeperArtifact, web3),
+          init(PropertyKeeperArtifact, web3),
+        ])
+
+        contracts.set("simple-storage", SimpleStorageContract)
+        artifacts.set("simple-storage", SimpleStorageArtifact)
+        
+        contracts.set("auth-keeper", AuthKeeperContract)
+        artifacts.set("auth-keeper", AuthKeeperArtifact)
+
+        contracts.set("property-keeper", PropertyKeeperContract)
+        artifacts.set("property-keeper", PropertyKeeperArtifact)
+
+        dispatch({
+          type: actions.init,
+          data: { artifacts, web3, accounts, networkID, contracts }
+        });
       } catch (err) {
         console.error(err);
       }

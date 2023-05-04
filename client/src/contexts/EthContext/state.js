@@ -1,20 +1,22 @@
 const actions = {
-  init: "INIT"
+  init: "INIT",
+  addContract: "ADD_CONTRACT"
 };
 
 const initialState = {
-  artifact: null,
+  artifacts: new Map(),
   web3: null,
   accounts: null,
   networkID: null,
-  contract: null
+  contracts: new Map()
 };
 
 const reducer = (state, action) => {
   const { type, data } = action;
   switch (type) {
     case actions.init:
-      return { ...state, ...data };
+      
+      return { ...state, ...data,  };
     default:
       throw new Error("Undefined reducer action type");
   }
